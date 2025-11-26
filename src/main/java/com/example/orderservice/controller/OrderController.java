@@ -4,6 +4,7 @@ import com.example.orderservice.dto.OrderRequest;
 import com.example.orderservice.dto.OrderResponse;
 import com.example.orderservice.entity.OrderStatus;
 import com.example.orderservice.service.OrderService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -24,7 +25,7 @@ public class OrderController {
     private final OrderService orderService;
 
     @PostMapping
-    public ResponseEntity<OrderResponse> createOrder(@RequestBody OrderRequest request) {
+    public ResponseEntity<OrderResponse> createOrder(@Valid @RequestBody OrderRequest request) {
         OrderResponse response = orderService.createOrder(request);
         return ResponseEntity.ok(response);
     }
@@ -55,8 +56,14 @@ public class OrderController {
         return ResponseEntity.ok(responses);
     }
 
+    @GetMapping("/user/email/{email}")
+    public ResponseEntity<List<OrderResponse>> getOrdersByUserEmail(@PathVariable String email) {
+        List<OrderResponse> responses = orderService.getOrdersByUserEmail(email);
+        return ResponseEntity.ok(responses);
+    }
+
     @PutMapping("/{id}")
-    public ResponseEntity<OrderResponse> updateOrder(@PathVariable Long id, @RequestBody OrderRequest request) {
+    public ResponseEntity<OrderResponse> updateOrder(@PathVariable Long id, @Valid @RequestBody OrderRequest request) {
         OrderResponse response = orderService.updateOrder(id, request);
         return ResponseEntity.ok(response);
     }

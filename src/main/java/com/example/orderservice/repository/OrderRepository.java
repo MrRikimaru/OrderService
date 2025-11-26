@@ -1,6 +1,7 @@
 package com.example.orderservice.repository;
 
 import com.example.orderservice.entity.Order;
+import jakarta.annotation.Nonnull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -9,7 +10,6 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -28,6 +28,6 @@ public interface OrderRepository extends JpaRepository<Order, Long>, JpaSpecific
     @Query("UPDATE Order o SET o.deleted = true WHERE o.id = :id")
     void softDelete(@Param("id") Long id);
 
-    @NonNull
-    Page<Order> findAll(@NonNull Specification<Order> spec, @NonNull Pageable pageable);
+    @Nonnull
+    Page<Order> findAll(@Nonnull Specification<Order> spec, @Nonnull Pageable pageable);
 }

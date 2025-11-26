@@ -1,4 +1,6 @@
 spring:
+  application:
+    name: OrderService
   datasource:
     url: ${DB_URL:jdbc:postgresql://${DB_HOST}:${DB_PORT}/orderService}
     username: ${DB_USERNAME}
@@ -9,7 +11,34 @@ spring:
     show-sql: true
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.yaml
+  cloud:
+    openfeign:
+      circuitbreaker:
+        enabled: true
+
+# URL для UserService
+user:
+  service:
+    url: ${USER_SERVICE_URL:http://localhost:8080}
+
+# Конфигурация Resilience4j Circuit Breaker
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        register-health-indicator: true
+        sliding-window-size: 10
+        minimum-number-of-calls: 5
+        permitted-number-of-calls-in-half-open-state: 3
+        automatic-transition-from-open-to-half-open-enabled: true
+        wait-duration-in-open-state: 10s
+        failure-rate-threshold: 50
+    instances:
+      userService:
+        base-config: default
 
 logging:
   level:
     org.hibernate.SQL: DEBUG
+    com.example.orderservice.client: DEBUG
+    org.springframework.cloud.openfeign: DEBUG
