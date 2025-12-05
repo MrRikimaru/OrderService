@@ -8,6 +8,7 @@ import com.example.orderservice.mapper.OrderItemMapper;
 import com.example.orderservice.repository.ItemRepository;
 import com.example.orderservice.repository.OrderRepository;
 import com.example.orderservice.specification.OrderSpecifications;
+import feign.FeignException;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -38,7 +39,17 @@ public class OrderService {
     public OrderResponse createOrder(OrderRequest request) {
         log.info("Creating order for user: {}", request.getUserId());
 
-        UserResponseDTO userInfo = getUserInfoWithFallback(request.getUserId());
+        UserResponseDTO userInfo;
+        try {
+            userInfo = getUserInfoWithFallback(request.getUserId());
+        } catch (Exception e) {
+            log.warn("Using fallback user info due to: {}", e.getMessage());
+            userInfo = new UserResponseDTO();
+            userInfo.setId(request.getUserId());
+            userInfo.setName("Fallback User");
+            userInfo.setActive(true);
+        }
+
         if (!Boolean.TRUE.equals(userInfo.getActive())) {
             throw new IllegalArgumentException("User is inactive");
         }
@@ -187,13 +198,16 @@ public class OrderService {
     private UserResponseDTO getUserInfoWithFallback(Long userId) {
         try {
             UserResponseDTO userInfo = userServiceClient.getUserById(userId);
-            if (userInfo == null) {
+            if (userInfo == null || userInfo.getId() == null) {
                 throw new IllegalArgumentException("User not found with id: " + userId);
             }
             return userInfo;
+        } catch (FeignException.NotFound e) {
+            log.warn("User not found for userId: {}, error: {}", userId, e.getMessage());
+            throw new IllegalArgumentException("User not found with id: " + userId);
         } catch (Exception e) {
             log.warn("Failed to fetch user info for userId: {}, error: {}", userId, e.getMessage());
-            throw new IllegalArgumentException("User not found with id: " + userId);
+            throw new IllegalArgumentException("Unable to fetch user info for id: " + userId);
         }
     }
 
@@ -209,26 +223,5 @@ public class OrderService {
             log.warn("Failed to fetch user info for email: {}, error: {}", email, e.getMessage());
             throw new IllegalArgumentException("User not found with email: " + email);
         }
-    }
-
-    @SuppressWarnings("unused")
-    private UserResponseDTO getUserInfoFallback(Long userId, Exception e) {
-        log.warn("Fallback method called for userId: {}, error: {}", userId, e.getMessage());
-        UserResponseDTO fallbackUser = new UserResponseDTO();
-        fallbackUser.setId(userId);
-        fallbackUser.setName("Service Temporarily Unavailable");
-        fallbackUser.setEmail("unavailable@example.com");
-        fallbackUser.setActive(true);
-        return fallbackUser;
-    }
-
-    @SuppressWarnings("unused")
-    private UserResponseDTO getUserByEmailFallback(String email, Exception e) {
-        log.warn("Fallback method called for email: {}, error: {}", email, e.getMessage());
-        UserResponseDTO fallbackUser = new UserResponseDTO();
-        fallbackUser.setEmail(email);
-        fallbackUser.setName("Service Temporarily Unavailable");
-        fallbackUser.setActive(true);
-        return fallbackUser;
     }
 }
