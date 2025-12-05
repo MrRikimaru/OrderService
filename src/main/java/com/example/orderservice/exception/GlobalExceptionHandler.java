@@ -15,12 +15,14 @@ import java.util.Map;
 @Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+    private static final String ERROR = "error";
+    private static final String MESSAGE = "message";
 
     @ExceptionHandler(EntityNotFoundException.class)
     public ResponseEntity<Map<String, String>> handleEntityNotFound(EntityNotFoundException ex) {
         Map<String, String> response = new HashMap<>();
-        response.put("error", "Not Found");
-        response.put("message", ex.getMessage());
+        response.put(ERROR, "Not Found");
+        response.put(MESSAGE, ex.getMessage());
         log.warn("Entity not found: {}", ex.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
@@ -28,8 +30,8 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<Map<String, String>> handleIllegalArgument(IllegalArgumentException ex) {
         Map<String, String> response = new HashMap<>();
-        response.put("error", "Bad Request");
-        response.put("message", ex.getMessage());
+        response.put(ERROR, "Bad Request");
+        response.put(MESSAGE, ex.getMessage());
         log.warn("Illegal argument: {}", ex.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
@@ -49,8 +51,8 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, String>> handleGenericException(Exception ex) {
         Map<String, String> response = new HashMap<>();
-        response.put("error", "Internal Server Error");
-        response.put("message", "An unexpected error occurred");
+        response.put(ERROR, "Internal Server Error");
+        response.put(MESSAGE, "An unexpected error occurred");
 
         log.error("Unexpected error occurred: {}", ex.getMessage(), ex);
 

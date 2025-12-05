@@ -10,7 +10,7 @@ import java.util.List;
 import static org.springframework.data.jpa.domain.Specification.allOf;
 
 public class OrderSpecifications {
-
+    private static final String CREATED_AT = "createdAt";
     public static Specification<Order> hasStatusIn(List<OrderStatus> statuses) {
         return (root, query, criteriaBuilder) -> {
             if (statuses == null || statuses.isEmpty()) {
@@ -26,12 +26,12 @@ public class OrderSpecifications {
                 return criteriaBuilder.conjunction();
             }
             if (startDate == null) {
-                return criteriaBuilder.lessThanOrEqualTo(root.get("createdAt"), endDate);
+                return criteriaBuilder.lessThanOrEqualTo(root.get(CREATED_AT), endDate);
             }
             if (endDate == null) {
-                return criteriaBuilder.greaterThanOrEqualTo(root.get("createdAt"), startDate);
+                return criteriaBuilder.greaterThanOrEqualTo(root.get(CREATED_AT), startDate);
             }
-            return criteriaBuilder.between(root.get("createdAt"), startDate, endDate);
+            return criteriaBuilder.between(root.get(CREATED_AT), startDate, endDate);
         };
     }
 
