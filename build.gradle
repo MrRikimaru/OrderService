@@ -141,8 +141,8 @@ tasks.withType(Pmd).configureEach {
 spotbugs {
 	toolVersion = '4.8.3'
 	ignoreFailures = false
-	effort = 'max'
-	reportLevel = 'low'
+	effort = com.github.spotbugs.snom.Effort.MAX
+	reportLevel = com.github.spotbugs.snom.Confidence.LOW
 	excludeFilter = file("${rootDir}/config/spotbugs/exclude.xml")
 }
 
