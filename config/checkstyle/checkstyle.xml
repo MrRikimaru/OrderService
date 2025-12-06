@@ -19,8 +19,20 @@
         <module name="CyclomaticComplexity">
             <property name="max" value="15"/>
         </module>
+        <module name="BooleanExpressionComplexity">
+            <property name="max" value="3"/>
+        </module>
+        <module name="ClassDataAbstractionCoupling">
+            <property name="max" value="10"/>
+        </module>
+        <module name="NPathComplexity">
+            <property name="max" value="200"/>
+        </module>
+        <module name="JavaNCSS">
+            <property name="methodMaximum" value="30"/>
+            <property name="classMaximum" value="300"/>
+        </module>
     </module>
-
     <module name="LineLength">
         <property name="max" value="150"/>
         <property name="ignorePattern" value="^package.*|^import.*|a href|href|http://|https://|ftp://"/>

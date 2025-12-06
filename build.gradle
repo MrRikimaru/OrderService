@@ -3,7 +3,6 @@ plugins {
 	id 'org.springframework.boot' version '3.5.8'
 	id 'io.spring.dependency-management' version '1.1.7'
 	id 'checkstyle'
-	id 'pmd'
 	id 'jacoco'
 	id 'com.github.spotbugs' version '6.0.14'
 	id 'org.owasp.dependencycheck' version '9.0.9'
@@ -114,22 +113,6 @@ checkstyle {
 }
 
 tasks.withType(Checkstyle).configureEach {
-	reports {
-		xml.required = true
-		html.required = true
-	}
-}
-
-// PMD конфигурация
-pmd {
-	toolVersion = '7.0.0'
-	ruleSetFiles = files("${rootDir}/config/pmd/ruleset.xml")
-	ruleSets = []
-	ignoreFailures = false
-	consoleOutput = true
-}
-
-tasks.withType(Pmd).configureEach {
 	reports {
 		xml.required = true
 		html.required = true
@@ -252,7 +235,6 @@ sonarqube {
 		property 'sonar.java.test.binaries', "${layout.buildDirectory.get().asFile}/classes/java/test"
 		property 'sonar.coverage.jacoco.xmlReportPaths', "${layout.buildDirectory.get().asFile}/reports/jacoco/test/jacocoTestReport.xml"
 		property 'sonar.java.checkstyle.reportPaths', "${layout.buildDirectory.get().asFile}/reports/checkstyle/main.xml"
-		property 'sonar.java.pmd.reportPaths', "${layout.buildDirectory.get().asFile}/reports/pmd/main.xml"
 		property 'sonar.java.spotbugs.reportPaths', "${layout.buildDirectory.get().asFile}/reports/spotbugs/main.xml"
 		property 'sonar.dependencyCheck.reportPath', "${layout.buildDirectory.get().asFile}/reports/dependency-check/report.xml"
 		property 'sonar.dependencyCheck.htmlReportPath', "${layout.buildDirectory.get().asFile}/reports/dependency-check/report.html"
@@ -285,7 +267,7 @@ tasks.register('runAllTests') {
 tasks.register('codeQuality') {
 	description = 'Runs all code quality checks.'
 	group = 'verification'
-	dependsOn checkstyleMain, pmdMain, spotbugsMain, dependencyCheckAnalyze, jacocoTestCoverageVerification
+	dependsOn checkstyleMain, spotbugsMain, dependencyCheckAnalyze, jacocoTestCoverageVerification
 }
 
 // Проверка перед сборкой
