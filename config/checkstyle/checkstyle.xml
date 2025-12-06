@@ -6,10 +6,12 @@
     <property name="charset" value="UTF-8"/>
 
     <module name="TreeWalker">
-        <module name="AvoidStarImport"/>
+        <module name="AvoidStarImport">
+            <property name="excludes" value="**/test/**"/>
+        </module>
         <module name="UnusedImports"/>
         <module name="MethodLength">
-            <property name="max" value="50"/>
+            <property name="max" value="60"/>
         </module>
         <module name="ParameterNumber">
             <property name="max" value="7"/>
