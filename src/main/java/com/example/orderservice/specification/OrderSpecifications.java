@@ -9,8 +9,13 @@ import java.util.List;
 
 import static org.springframework.data.jpa.domain.Specification.allOf;
 
-public class OrderSpecifications {
+public final class OrderSpecifications {
     private static final String CREATED_AT = "createdAt";
+
+    private OrderSpecifications() {
+        throw new UnsupportedOperationException("Utility class");
+    }
+
     public static Specification<Order> hasStatusIn(List<OrderStatus> statuses) {
         return (root, query, criteriaBuilder) -> {
             if (statuses == null || statuses.isEmpty()) {

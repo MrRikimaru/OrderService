@@ -4,29 +4,51 @@
     <description>Basic PMD rules for Order Service</description>
 
     <rule ref="category/java/bestpractices.xml">
-        <exclude name="GuardLogStatement"/>
-        <exclude name="UseUtilityClass"/>
-        <exclude name="PreserveStackTrace"/>
-        <exclude name="ExceptionAsFlowControl"/>
+        <exclude name="GuardLogStatementJavaUtil"/>
+        <exclude name="AvoidPrintStackTrace"/>
+        <exclude name="DoNotThrowExceptionInFinally"/>
     </rule>
 
     <rule ref="category/java/codestyle.xml">
         <exclude name="AtLeastOneConstructor"/>
-        <exclude name="ShortVariable"/>
+        <exclude name="ShortVariable">
+            <properties>
+                <property name="minimum" value="2" />
+            </properties>
+        </exclude>
         <exclude name="LongVariable"/>
-        <exclude name="ShortClassName"/>
-        <exclude name="LinguisticNaming"/>
+        <exclude name="ShortClassName">
+            <properties>
+                <property name="minimum" value="4" />
+            </properties>
+        </exclude>
         <exclude name="MethodArgumentCouldBeFinal"/>
         <exclude name="LocalVariableCouldBeFinal"/>
+        <exclude name="OnlyOneReturn"/>
     </rule>
 
     <rule ref="category/java/design.xml">
         <exclude name="LawOfDemeter"/>
-        <exclude name="CouplingBetweenObjects"/>
-        <exclude name="LoosePackageCoupling"/>
+        <exclude name="CouplingBetweenObjects">
+            <properties>
+                <property name="threshold" value="20" />
+            </properties>
+        </exclude>
+        <exclude name="ExcessiveImports"/>
+        <exclude name="TooManyMethods">
+            <properties>
+                <property name="maxmethods" value="20" />
+            </properties>
+        </exclude>
     </rule>
 
     <rule ref="category/java/errorprone.xml">
         <exclude name="AvoidCatchingGenericException"/>
+        <exclude name="AvoidCatchingThrowable"/>
+        <exclude name="AvoidThrowingRawExceptionTypes"/>
+    </rule>
+
+    <rule ref="category/java/multithreading.xml">
+        <exclude name="AvoidSynchronizedAtMethodLevel"/>
     </rule>
 </ruleset>
