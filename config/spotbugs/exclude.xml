@@ -10,19 +10,21 @@
         <Bug pattern="SE_NO_SERIALVERSIONID"/>
     </Match>
     <Match>
-        <Class name="~.*\.dto\..*"/>
-    </Match>
-    <Match>
-        <Class name="~.*\.entity\..*"/>
-    </Match>
-    <Match>
-        <Class name="~.*\.config\..*"/>
-    </Match>
-    <Match>
-        <Class name="~.*\.mapper\..*"/>
-    </Match>
-    <Match>
         <Bug pattern="UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR"/>
-        <Class name="~.*\.mapper\..*"/>
+    </Match>
+    <Match>
+        <Bug pattern="DM_DEFAULT_ENCODING"/>
+    </Match>
+    <Match>
+        <Package name="~.*\.dto\.*"/>
+    </Match>
+    <Match>
+        <Package name="~.*\.entity\.*"/>
+    </Match>
+    <Match>
+        <Package name="~.*\.config\.*"/>
+    </Match>
+    <Match>
+        <Package name="~.*\.mapper\.*"/>
     </Match>
 </FindBugsFilter>

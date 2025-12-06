@@ -16,7 +16,7 @@ public final class OrderSpecifications {
         throw new UnsupportedOperationException("Utility class");
     }
 
-    public static Specification<Order> hasStatusIn(List<OrderStatus> statuses) {
+    public static Specification<Order> statusIn(List<OrderStatus> statuses) {
         return (root, query, criteriaBuilder) -> {
             if (statuses == null || statuses.isEmpty()) {
                 return criteriaBuilder.conjunction();
@@ -53,7 +53,7 @@ public final class OrderSpecifications {
         return allOf(
                 notDeleted(),
                 createdAtBetween(startDate, endDate),
-                hasStatusIn(statuses)
+                statusIn(statuses)
         );
     }
 }
