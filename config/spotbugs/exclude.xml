@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FindBugsFilter>
+    <Match>
+        <Bug pattern="EI_EXPOSE_REP"/>
+    </Match>
+    <Match>
+        <Bug pattern="EI_EXPOSE_REP2"/>
+    </Match>
+    <Match>
+        <Bug pattern="SE_NO_SERIALVERSIONID"/>
+    </Match>
+    <Match>
+        <Class name="~.*\.dto\..*"/>
+    </Match>
+    <Match>
+        <Class name="~.*\.entity\..*"/>
+    </Match>
+    <Match>
+        <Class name="~.*\.config\..*"/>
+    </Match>
+    <Match>
+        <Class name="~.*\.mapper\..*"/>
+    </Match>
+    <Match>
+        <Bug pattern="UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR"/>
+        <Class name="~.*\.mapper\..*"/>
+    </Match>
+</FindBugsFilter>
