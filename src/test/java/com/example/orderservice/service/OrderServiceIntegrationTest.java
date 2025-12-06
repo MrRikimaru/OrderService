@@ -48,6 +48,7 @@ import static org.assertj.core.api.Assertions.assertThat;
         "resilience4j.circuitbreaker.instances.userService.permitted-number-of-calls-in-half-open-state=2",
         "resilience4j.circuitbreaker.instances.userService.wait-duration-in-open-state=1s",
         "resilience4j.circuitbreaker.instances.userService.failure-rate-threshold=50",
+        "spring.datasource.driver-class-name=org.postgresql.Driver",
         "spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect"
 })
 class OrderServiceIntegrationTest {
@@ -63,6 +64,7 @@ class OrderServiceIntegrationTest {
         registry.add("spring.datasource.url", postgreSQLContainer::getJdbcUrl);
         registry.add("spring.datasource.username", postgreSQLContainer::getUsername);
         registry.add("spring.datasource.password", postgreSQLContainer::getPassword);
+        registry.add("spring.datasource.driver-class-name", () -> "org.postgresql.Driver");
     }
 
     @Autowired
