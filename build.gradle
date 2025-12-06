@@ -3,10 +3,10 @@ plugins {
 	id 'org.springframework.boot' version '3.5.8'
 	id 'io.spring.dependency-management' version '1.1.7'
 	id 'checkstyle'
-	id 'pmd'
 	id 'jacoco'
 	id 'com.github.spotbugs' version '6.0.14'
 	id 'org.owasp.dependencycheck' version '9.0.9'
+	id 'org.sonarqube' version '5.0.0.4638'
 }
 
 group = 'com.example'
@@ -67,7 +67,6 @@ dependencies {
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework.boot:spring-boot-testcontainers'
 
-
 	testImplementation "org.testcontainers:testcontainers-bom:1.19.7"
 	testImplementation "org.testcontainers:junit-jupiter"
 	testImplementation "org.testcontainers:postgresql"
@@ -108,32 +107,71 @@ checkstyle {
 	toolVersion = '10.12.5'
 	configFile = file("${rootDir}/config/checkstyle/checkstyle.xml")
 	ignoreFailures = false
+	showViolations = true
+	maxErrors = 0
+	maxWarnings = 100
 }
 
-// PMD конфигурация
-pmd {
-	toolVersion = '7.0.0'
-	ruleSetFiles = files("${rootDir}/config/pmd/ruleset.xml")
-	ruleSets = []
+tasks.withType(Checkstyle).configureEach {
+	reports {
+		xml.required = true
+		html.required = true
+	}
 }
 
 // SpotBugs конфигурация
+import com.github.spotbugs.snom.Confidence
+import com.github.spotbugs.snom.Effort
+import com.github.spotbugs.snom.SpotBugsTask
 spotbugs {
 	toolVersion = '4.8.3'
 	ignoreFailures = false
-	effort = 'default'
+	effort = Effort.MAX
+	reportLevel = Confidence.values()[2]
+	excludeFilter = file("${rootDir}/config/spotbugs/exclude.xml")
+}
+
+tasks.withType(SpotBugsTask).configureEach {
+	reports {
+		html {
+			required = true
+			outputLocation = layout.buildDirectory.file("reports/spotbugs/${name}.html").get().asFile
+			stylesheet = 'fancy-hist.xsl'
+		}
+		xml {
+			required = true
+			outputLocation = layout.buildDirectory.file("reports/spotbugs/${name}.xml").get().asFile  // Исправлено с .html на .xml
+		}
+	}
 }
 
 // JaCoCo конфигурация
 jacoco {
 	toolVersion = "0.8.11"
+	reportsDirectory.set(layout.buildDirectory.dir('reports/jacoco'))
 }
+
 
 jacocoTestReport {
 	dependsOn test
 	reports {
 		xml.required = true
 		html.required = true
+		csv.required = false
+	}
+
+	afterEvaluate {
+		classDirectories.setFrom(files(classDirectories.files.collect {
+			fileTree(dir: it, exclude: [
+					'**/dto/**',
+					'**/entity/**',
+					'**/config/**',
+					'**/exception/**',
+					'**/mapper/**',
+					'**/*Application.*',
+					'**/*Config.*'
+			])
+		}))
 	}
 }
 
@@ -141,16 +179,66 @@ jacocoTestCoverageVerification {
 	violationRules {
 		rule {
 			limit {
-				minimum = 0.70 // 70% покрытия кода
+				minimum = 0.70
+			}
+			excludes = [
+					'**/dto/**',
+					'**/entity/**',
+					'**/config/**',
+					'**/exception/**',
+					'**/mapper/**',
+					'**/*Application.*',
+					'**/*Config.*'
+			]
+		}
+
+		rule {
+			element = 'CLASS'
+			includes = ['**/service/**', '**/controller/**']
+			limit {
+				counter = 'LINE'
+				value = 'COVEREDRATIO'
+				minimum = 0.80
 			}
 		}
 	}
 }
 
+
 // OWASP Dependency Check
 dependencyCheck {
 	format = 'ALL'
 	suppressionFile = file("${rootDir}/config/owasp/suppressions.xml")
+	skipConfigurations = [
+			'checkstyle',
+			'pmd',
+			'spotbugs',
+			'sonarqube'
+	]
+	failBuildOnCVSS = 7
+	analyzers {
+		assemblyEnabled = false
+	}
+}
+
+// SonarQube конфигурация
+// SonarQube конфигурация
+sonarqube {
+	properties {
+		property 'sonar.projectKey', 'MrRikimaru_OrderService'
+		property 'sonar.organization', 'mrrikimaru'
+		property 'sonar.host.url', 'https://sonarcloud.io'
+		property 'sonar.login', System.getenv('SONAR_TOKEN')
+		property 'sonar.sourceEncoding', 'UTF-8'
+		property 'sonar.java.source', '21'
+		property 'sonar.java.binaries', "${layout.buildDirectory.get().asFile}/classes/java/main"
+		property 'sonar.java.test.binaries', "${layout.buildDirectory.get().asFile}/classes/java/test"
+		property 'sonar.coverage.jacoco.xmlReportPaths', "${layout.buildDirectory.get().asFile}/reports/jacoco/test/jacocoTestReport.xml"
+		property 'sonar.java.checkstyle.reportPaths', "${layout.buildDirectory.get().asFile}/reports/checkstyle/main.xml"
+		property 'sonar.java.spotbugs.reportPaths', "${layout.buildDirectory.get().asFile}/reports/spotbugs/main.xml"
+		property 'sonar.dependencyCheck.reportPath', "${layout.buildDirectory.get().asFile}/reports/dependency-check/report.xml"
+		property 'sonar.dependencyCheck.htmlReportPath', "${layout.buildDirectory.get().asFile}/reports/dependency-check/report.html"
+	}
 }
 
 // Задача для интеграционных тестов
@@ -163,13 +251,56 @@ tasks.register('integrationTest', Test) {
 	testClassesDirs = sourceSets.test.output.classesDirs
 	classpath = sourceSets.test.runtimeClasspath
 
+	systemProperty 'spring.profiles.active', 'test'
+
 	mustRunAfter test
 }
 
-// Задача для запуска всех тестов
+/// Задача для запуска всех тестов
 tasks.register('runAllTests') {
+	description = 'Runs all tests (unit + integration).'
+	group = 'verification'
 	dependsOn test, integrationTest
+}
+
+// Задача для запуска всех проверок качества кода
+tasks.register('codeQuality') {
+	description = 'Runs all code quality checks.'
+	group = 'verification'
+	dependsOn checkstyleMain, spotbugsMain, dependencyCheckAnalyze, jacocoTestCoverageVerification
 }
 
 // Проверка перед сборкой
 check.dependsOn jacocoTestCoverageVerification
+
+// Сборка должна включать проверку качества кода
+build.dependsOn codeQuality
+
+// Сборка тестового отчета после тестов
+test.finalizedBy jacocoTestReport
+
+// Интеграционные тесты после unit тестов
+integrationTest.mustRunAfter test
+
+wrapper {
+	gradleVersion = '8.10'
+	distributionType = Wrapper.DistributionType.BIN
+}
+
+tasks.withType(JavaCompile).configureEach {
+	options.encoding = 'UTF-8'
+	options.compilerArgs += [
+			'-parameters',
+			'-Xlint:unchecked',
+			'-Xlint:deprecation'
+	]
+}
+
+tasks.withType(Test).configureEach {
+	systemProperty 'file.encoding', 'UTF-8'
+	maxParallelForks = Runtime.runtime.availableProcessors().intdiv(2) ?: 1
+	testLogging {
+		events 'passed', 'skipped', 'failed'
+		showStandardStreams = true
+	}
+}

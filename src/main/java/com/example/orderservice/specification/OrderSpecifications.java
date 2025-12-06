@@ -9,9 +9,14 @@ import java.util.List;
 
 import static org.springframework.data.jpa.domain.Specification.allOf;
 
-public class OrderSpecifications {
+public final class OrderSpecifications {
     private static final String CREATED_AT = "createdAt";
-    public static Specification<Order> hasStatusIn(List<OrderStatus> statuses) {
+
+    private OrderSpecifications() {
+        throw new UnsupportedOperationException("Utility class");
+    }
+
+    public static Specification<Order> statusIn(List<OrderStatus> statuses) {
         return (root, query, criteriaBuilder) -> {
             if (statuses == null || statuses.isEmpty()) {
                 return criteriaBuilder.conjunction();
@@ -48,7 +53,7 @@ public class OrderSpecifications {
         return allOf(
                 notDeleted(),
                 createdAtBetween(startDate, endDate),
-                hasStatusIn(statuses)
+                statusIn(statuses)
         );
     }
 }

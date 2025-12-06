@@ -73,6 +73,7 @@ TEST*.xml
 checkstyle-output.xml
 
 pmd.xml
+reports/pmd/
 
 jacoco*.exec
 *.exec

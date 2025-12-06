@@ -1,8 +1,15 @@
 package com.example.orderservice.service;
 
 import com.example.orderservice.client.UserServiceClient;
-import com.example.orderservice.dto.*;
-import com.example.orderservice.entity.*;
+import com.example.orderservice.dto.OrderItemRequest;
+import com.example.orderservice.dto.OrderResponse;
+import com.example.orderservice.dto.OrderItemResponse;
+import com.example.orderservice.dto.UserResponseDTO;
+import com.example.orderservice.dto.OrderRequest;
+import com.example.orderservice.entity.Item;
+import com.example.orderservice.entity.Order;
+import com.example.orderservice.entity.OrderItem;
+import com.example.orderservice.entity.OrderStatus;
 import com.example.orderservice.mapper.OrderMapper;
 import com.example.orderservice.mapper.OrderItemMapper;
 import com.example.orderservice.repository.ItemRepository;

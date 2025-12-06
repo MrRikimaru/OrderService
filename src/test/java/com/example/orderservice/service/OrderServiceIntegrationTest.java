@@ -28,7 +28,12 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.get;
+import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.verify;
+import static com.github.tomakehurst.wiremock.client.WireMock.getRequestedFor;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
@@ -74,9 +79,9 @@ class OrderServiceIntegrationTest {
 
     @BeforeAll
     static void beforeAll() {
-        wireMockServer = new WireMockServer(18089);
+        wireMockServer = new WireMockServer(18_089);
         wireMockServer.start();
-        WireMock.configureFor("localhost", 18089);
+        WireMock.configureFor("localhost", 18_089);
     }
 
     @AfterAll

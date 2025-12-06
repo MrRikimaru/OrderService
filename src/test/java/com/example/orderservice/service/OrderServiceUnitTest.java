@@ -1,8 +1,15 @@
 package com.example.orderservice.service;
 
 import com.example.orderservice.client.UserServiceClient;
-import com.example.orderservice.dto.*;
-import com.example.orderservice.entity.*;
+import com.example.orderservice.dto.OrderRequest;
+import com.example.orderservice.dto.OrderResponse;
+import com.example.orderservice.dto.OrderItemRequest;
+import com.example.orderservice.dto.OrderItemResponse;
+import com.example.orderservice.dto.UserResponseDTO;
+import com.example.orderservice.entity.Order;
+import com.example.orderservice.entity.Item;
+import com.example.orderservice.entity.OrderItem;
+import com.example.orderservice.entity.OrderStatus;
 import com.example.orderservice.mapper.OrderItemMapper;
 import com.example.orderservice.mapper.OrderMapper;
 import com.example.orderservice.repository.ItemRepository;
@@ -15,16 +22,31 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.*;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
-import static org.assertj.core.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
+import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyLong;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.doNothing;
+
 
 @ExtendWith(MockitoExtension.class)
 class OrderServiceUnitTest {
