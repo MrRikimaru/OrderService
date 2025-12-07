@@ -185,9 +185,12 @@ dependencyCheck {
 	failOnError = false
 
 	if (System.getenv('CI')) {
-		println "CI environment detected, disabling NVD updates"
+		println "CI environment detected, skipping NVD updates"
+	} else if (System.getenv('NVD_API_KEY')) {
+		println "NVD_API_KEY found, configuring NVD data source"
 		nvd {
-			enabled = false
+			apiKey = System.getenv('NVD_API_KEY')
+			delay = 6000
 		}
 	}
 }
