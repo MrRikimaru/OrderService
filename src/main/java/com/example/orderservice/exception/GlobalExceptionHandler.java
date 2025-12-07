@@ -63,4 +63,15 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
     }
+
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity<ConcurrentHashMap<String, String>> handleIllegalState(IllegalStateException ex) {
+        ConcurrentHashMap<String, String> response = new ConcurrentHashMap<>();
+        response.put(ERROR, "Bad Request");
+        response.put(MESSAGE, ex.getMessage());
+        if (log.isWarnEnabled()) {
+            log.warn("Illegal state: {}", ex.getMessage());
+        }
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
 }
