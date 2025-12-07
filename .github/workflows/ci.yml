@@ -132,7 +132,7 @@ jobs:
           retention-days: 7
 
       - name: Run SonarQube analysis
-        if: ${{ github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev') }}
+        if: ${{ github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/CI_Pipeline') }}
         run: gradle sonarqube
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
