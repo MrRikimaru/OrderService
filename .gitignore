@@ -1,16 +1,11 @@
-# Compiled class file
 *.class
 
-# Log file
 *.log
 
-# BlueJ files
 *.ctxt
 
-# Mobile Tools for Java (J2ME)
 .mtj.tmp/
 
-# Package Files #
 *.jar
 *.war
 *.nar
@@ -19,100 +14,91 @@
 *.tar.gz
 *.rar
 
-# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
 
-# IDE files
-## IntelliJ IDEA
 .idea/
 *.iws
 *.iml
 *.ipr
 out/
 
-# Gradle
 .gradle/
 build/
 
-# STS
 .settings/
 bin/
-!.mvn/wrapper/maven-wrapper.jar
 
-# Maven
 target/
 **/mvnw
 **/mvnw.cmd
 **/.mvn
 **/maven-wrapper.jar
 
-# Eclipse
 .classpath
 .project
 
-# NetBeans
 /nbproject/private/
 /nbbuild/
 /dist/
 /nbdist/
 /.nb-gradle/
 
-# VS Code
 .vscode/
 
-# Mac
 .DS_Store
 
-# Windows
 Thumbs.db
 ehthumbs.db
 Desktop.ini
 
-# Liquibase
 liquibase.properties
 liquibase-changelog.xml
 
-# Application properties
-**/application-*.properties
-**/application-*.yml
-
-# Local configuration files
 *.local
 
-# Env files (optional - если не хотите коммитить .env файлы)
-# .env
-# .env.local
+.env
+.env.local
 
-# Logs
 logs/
 **/logs/
 
-# Temp files
 tmp/
 temp/
 
-# Unit test reports
 TEST*.xml
 
-# Surefire reports
 **/surefire-reports/
 **/failsafe-reports/
 
-# Checkstyle reports
 checkstyle-output.xml
 
-# PMD reports
 pmd.xml
+reports/pmd/
 
-# JaCoCo coverage reports
 jacoco*.exec
 *.exec
 
-# Dependency reduced pom
 dependency-reduced-pom.xml
 
-# Build time files
 build/time.stamp
 
-# Package time files
 package-lock.json
+
+!gradle/wrapper/
+!gradle/wrapper/gradle-wrapper.jar
+!gradle/wrapper/gradle-wrapper.properties
+
+!gradlew
+!gradlew.bat
+!gradle.properties
+!settings.gradle
+
+!.dockerignore
+!.gitattributes
+
+!application.yml
+!application-test.yml
+!application-docker.yml
+
+!db.changelog-master.yaml
+!db/changelog/versions/*.yaml

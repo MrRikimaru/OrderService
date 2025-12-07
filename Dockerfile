@@ -9,6 +9,12 @@ WORKDIR /app
 COPY build.gradle settings.gradle* gradle.properties gradlew ./
 COPY gradle ./gradle
 
+# Копирование конфигурационных файлов checkstyle
+COPY config ./config
+
+# Установка прав на выполнение для gradlew
+RUN chmod +x gradlew
+
 # Скачивание зависимостей (кэшируется отдельно)
 RUN ./gradlew dependencies --no-daemon || true
 

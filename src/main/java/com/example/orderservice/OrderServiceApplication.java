@@ -10,6 +10,10 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 @EnableFeignClients
 public class OrderServiceApplication {
 
+	private OrderServiceApplication() {
+		// Prevent instantiation
+	}
+
 	public static void main(String[] args) {
 		SpringApplication.run(OrderServiceApplication.class, args);
 	}

@@ -28,7 +28,12 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.get;
+import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.verify;
+import static com.github.tomakehurst.wiremock.client.WireMock.getRequestedFor;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
@@ -43,6 +48,7 @@ import static org.assertj.core.api.Assertions.assertThat;
         "resilience4j.circuitbreaker.instances.userService.permitted-number-of-calls-in-half-open-state=2",
         "resilience4j.circuitbreaker.instances.userService.wait-duration-in-open-state=1s",
         "resilience4j.circuitbreaker.instances.userService.failure-rate-threshold=50",
+        "spring.datasource.driver-class-name=org.postgresql.Driver",
         "spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect"
 })
 class OrderServiceIntegrationTest {
@@ -58,6 +64,7 @@ class OrderServiceIntegrationTest {
         registry.add("spring.datasource.url", postgreSQLContainer::getJdbcUrl);
         registry.add("spring.datasource.username", postgreSQLContainer::getUsername);
         registry.add("spring.datasource.password", postgreSQLContainer::getPassword);
+        registry.add("spring.datasource.driver-class-name", () -> "org.postgresql.Driver");
     }
 
     @Autowired
@@ -74,9 +81,9 @@ class OrderServiceIntegrationTest {
 
     @BeforeAll
     static void beforeAll() {
-        wireMockServer = new WireMockServer(18089);
+        wireMockServer = new WireMockServer(18_089);
         wireMockServer.start();
-        WireMock.configureFor("localhost", 18089);
+        WireMock.configureFor("localhost", 18_089);
     }
 
     @AfterAll

@@ -1,8 +1,15 @@
 package com.example.orderservice.service;
 
 import com.example.orderservice.client.UserServiceClient;
-import com.example.orderservice.dto.*;
-import com.example.orderservice.entity.*;
+import com.example.orderservice.dto.OrderItemRequest;
+import com.example.orderservice.dto.OrderResponse;
+import com.example.orderservice.dto.OrderItemResponse;
+import com.example.orderservice.dto.UserResponseDTO;
+import com.example.orderservice.dto.OrderRequest;
+import com.example.orderservice.entity.Item;
+import com.example.orderservice.entity.Order;
+import com.example.orderservice.entity.OrderItem;
+import com.example.orderservice.entity.OrderStatus;
 import com.example.orderservice.mapper.OrderMapper;
 import com.example.orderservice.mapper.OrderItemMapper;
 import com.example.orderservice.repository.ItemRepository;
@@ -28,6 +35,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class OrderService {
+    private static final String ORDER_NOT_FOUND_WITH_ID = "Order not found with id";
 
     private final OrderRepository orderRepository;
     private final ItemRepository itemRepository;
@@ -71,7 +79,7 @@ public class OrderService {
     public OrderResponse getOrderById(Long id) {
         log.debug("Fetching order by id: {}", id);
         Order order = orderRepository.findByIdAndDeletedFalse(id)
-                .orElseThrow(() -> new EntityNotFoundException("Order not found with id: " + id));
+                .orElseThrow(() -> new EntityNotFoundException(ORDER_NOT_FOUND_WITH_ID + id));
         return convertToResponse(order);
     }
 
@@ -109,7 +117,7 @@ public class OrderService {
         log.info("Updating order with id: {}", id);
 
         Order existingOrder = orderRepository.findByIdAndDeletedFalse(id)
-                .orElseThrow(() -> new EntityNotFoundException("Order not found with id: " + id));
+                .orElseThrow(() -> new EntityNotFoundException(ORDER_NOT_FOUND_WITH_ID + id));
 
         UserResponseDTO userInfo = getUserInfoWithFallback(request.getUserId());
         if (!Boolean.TRUE.equals(userInfo.getActive())) {
@@ -132,7 +140,7 @@ public class OrderService {
     public void deleteOrder(Long id) {
         log.info("Soft deleting order with id: {}", id);
         orderRepository.findByIdAndDeletedFalse(id)
-                .orElseThrow(() -> new EntityNotFoundException("Order not found with id: " + id));
+                .orElseThrow(() -> new EntityNotFoundException(ORDER_NOT_FOUND_WITH_ID + id));
         orderRepository.softDelete(id);
         log.info("Order soft deleted with id: {}", id);
     }

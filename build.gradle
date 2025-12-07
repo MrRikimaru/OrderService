@@ -1,7 +1,14 @@
+import com.github.spotbugs.snom.Effort
+
 plugins {
 	id 'java'
 	id 'org.springframework.boot' version '3.5.8'
 	id 'io.spring.dependency-management' version '1.1.7'
+	id 'checkstyle'
+	id 'jacoco'
+	id 'com.github.spotbugs' version '6.0.16'
+	id 'org.owasp.dependencycheck' version '9.0.10'
+	id 'org.sonarqube' version '5.0.0.4638'
 }
 
 group = 'com.example'
@@ -62,8 +69,7 @@ dependencies {
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework.boot:spring-boot-testcontainers'
 
-
-	testImplementation "org.testcontainers:testcontainers-bom:1.19.7"
+	testImplementation platform("org.testcontainers:testcontainers-bom:1.19.7")
 	testImplementation "org.testcontainers:junit-jupiter"
 	testImplementation "org.testcontainers:postgresql"
 	testImplementation 'org.testcontainers:testcontainers'
@@ -78,7 +84,7 @@ dependencies {
 	testImplementation 'com.h2database:h2'
 	testImplementation 'org.springframework.cloud:spring-cloud-starter-contract-stub-runner'
 
-
+	spotbugsPlugins 'com.h3xstream.findsecbugs:findsecbugs-plugin:1.14.0'
 }
 
 tasks.named('test') {
@@ -96,4 +102,198 @@ tasks.withType(JavaCompile).configureEach {
 			'-Amapstruct.verbose=false',
 			'-Amapstruct.suppressGeneratorVersionInfoComment=true'
 	]
+}
+
+// Checkstyle
+checkstyle {
+	toolVersion = '10.12.5'
+	configFile = file("${rootDir}/config/checkstyle/checkstyle.xml")
+	ignoreFailures = false
+	showViolations = true
+	maxErrors = 0
+	maxWarnings = 100
+}
+
+tasks.withType(Checkstyle).configureEach {
+	reports {
+		xml.required = true
+		html.required = true
+	}
+}
+
+// SpotBugs
+spotbugs {
+	toolVersion = '4.9.7'
+	ignoreFailures = true
+	showStackTraces = true
+	showProgress = true
+	effort = Effort.MAX
+	excludeFilter = file("${rootDir}/config/spotbugs/exclude.xml")
+}
+
+// JaCoCo
+jacoco {
+	toolVersion = "0.8.11"
+	reportsDirectory.set(layout.buildDirectory.dir('reports/jacoco'))
+}
+
+jacocoTestReport {
+	dependsOn test
+	reports {
+		xml.required = true
+		html.required = true
+		csv.required = false
+	}
+}
+
+jacocoTestCoverageVerification {
+	violationRules {
+		rule {
+			limit {
+				minimum = 0.62
+			}
+			excludes = [
+					'**/dto/**',
+					'**/entity/**',
+					'**/config/**',
+					'**/exception/**',
+					'**/mapper/**',
+					'**/*Application.*',
+					'**/*Config.*'
+			]
+		}
+	}
+}
+
+// OWASP
+dependencyCheck {
+	format = 'ALL'
+	suppressionFile = file("${rootDir}/config/owasp/suppressions.xml")
+	skipConfigurations = [
+			'checkstyle',
+			'spotbugs',
+			'sonarqube'
+	]
+	failBuildOnCVSS = 0
+	analyzers {
+		assemblyEnabled = false
+	}
+	autoUpdate = false
+	data {
+		directory = layout.buildDirectory.dir("reports/dependency-check-data").get().asFile
+	}
+	failOnError = false
+
+	if (System.getenv('CI')) {
+		println "CI environment detected, skipping NVD updates"
+	} else if (System.getenv('NVD_API_KEY')) {
+		println "NVD_API_KEY found, configuring NVD data source"
+		nvd {
+			apiKey = System.getenv('NVD_API_KEY')
+			delay = 6000
+		}
+	}
+}
+
+// SonarQube
+sonarqube {
+	properties {
+		property 'sonar.projectKey', 'MrRikimaru_OrderService'
+		property 'sonar.organization', 'mrrikimaru'
+		property 'sonar.host.url', 'https://sonarcloud.io'
+		property 'sonar.login', System.getenv('SONAR_TOKEN') ?: ''
+		property 'sonar.sourceEncoding', 'UTF-8'
+		property 'sonar.java.source', '21'
+		property 'sonar.java.binaries', "${layout.buildDirectory.get().asFile}/classes/java/main"
+		property 'sonar.java.test.binaries', "${layout.buildDirectory.get().asFile}/classes/java/test"
+
+		property 'sonar.coverage.jacoco.xmlReportPaths',
+				"${layout.buildDirectory.get().asFile}/reports/jacoco/test/jacocoTestReport.xml"
+
+		property 'sonar.java.checkstyle.reportPaths',
+				"${layout.buildDirectory.get().asFile}/reports/checkstyle/main.xml"
+
+		property 'sonar.java.spotbugs.reportPaths',
+				"${layout.buildDirectory.get().asFile}/reports/spotbugs/main.xml"
+
+		property 'sonar.dependencyCheck.reportPaths',
+				"${layout.buildDirectory.get().asFile}/reports/dependency-check/report.xml"
+	}
+}
+
+tasks.register('integrationTest', Test) {
+	description = 'Runs integration tests.'
+	group = 'verification'
+
+	useJUnitPlatform()
+
+	testClassesDirs = sourceSets.test.output.classesDirs
+	classpath = sourceSets.test.runtimeClasspath
+
+	systemProperty 'spring.profiles.active', 'test'
+
+	filter {
+		excludeTestsMatching '*UnitTest'
+		includeTestsMatching '*IntegrationTest'
+	}
+
+	mustRunAfter test
+}
+
+tasks.register('runAllTests') {
+	description = 'Runs all tests (unit + integration).'
+	group = 'verification'
+	dependsOn test, integrationTest
+}
+
+tasks.register('codeQuality') {
+	description = 'Runs all code quality checks.'
+	group = 'verification'
+	dependsOn checkstyleMain, jacocoTestCoverageVerification
+}
+
+check.dependsOn jacocoTestCoverageVerification
+
+build.dependsOn codeQuality
+
+test.finalizedBy jacocoTestReport
+
+integrationTest.mustRunAfter test
+
+wrapper {
+	gradleVersion = '8.10'
+	distributionType = Wrapper.DistributionType.BIN
+}
+
+tasks.withType(JavaCompile).configureEach {
+	options.encoding = 'UTF-8'
+	options.compilerArgs += [
+			'-parameters',
+			'-Xlint:unchecked',
+			'-Xlint:deprecation'
+	]
+}
+
+tasks.withType(Test).configureEach {
+	systemProperty 'file.encoding', 'UTF-8'
+	maxParallelForks = Runtime.runtime.availableProcessors().intdiv(2) ?: 1
+	testLogging {
+		events 'passed', 'skipped', 'failed'
+		showStandardStreams = true
+	}
+}
+
+
+tasks.register('qualityReports') {
+	description = 'Generates all quality reports.'
+	group = 'verification'
+	dependsOn checkstyleMain, spotbugsMain, jacocoTestReport, dependencyCheckAnalyze
+}
+
+tasks.withType(AbstractCompile).configureEach {
+	options.incremental = true
+}
+
+tasks.named('build') {
+	dependsOn 'checkstyleMain', 'spotbugsMain'
 }

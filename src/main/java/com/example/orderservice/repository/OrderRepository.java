@@ -29,5 +29,6 @@ public interface OrderRepository extends JpaRepository<Order, Long>, JpaSpecific
     void softDelete(@Param("id") Long id);
 
     @Nonnull
+    @Override
     Page<Order> findAll(@Nonnull Specification<Order> spec, @Nonnull Pageable pageable);
 }
