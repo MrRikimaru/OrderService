@@ -119,9 +119,6 @@ jobs:
         if: false
         run: echo "OWASP Dependency Check is temporarily disabled"
 
-      - name: Run OWASP Dependency Check
-        run: gradle dependencyCheckAnalyze
-        continue-on-error: true
 
       - name: Upload code quality reports
         uses: actions/upload-artifact@v4
