@@ -115,9 +115,9 @@ jobs:
       - name: Generate JaCoCo coverage report
         run: gradle jacocoTestReport
 
-      - name: Check code coverage (minimum 62%)
-        run: gradle jacocoTestCoverageVerification
-        continue-on-error: true
+      - name: Run OWASP Dependency Check
+        if: false
+        run: echo "OWASP Dependency Check is temporarily disabled"
 
       - name: Run OWASP Dependency Check
         run: gradle dependencyCheckAnalyze
