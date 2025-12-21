@@ -24,6 +24,7 @@ jobs:
         uses: gradle/actions/setup-gradle@v3
         with:
           gradle-version: '8.10'
+          cache-disabled: true
 
       - name: Build with Gradle
         run: gradle build -x test
@@ -68,6 +69,7 @@ jobs:
         uses: gradle/actions/setup-gradle@v3
         with:
           gradle-version: '8.10'
+          cache-disabled: true
 
       - name: Run tests
         run: gradle test integrationTest
@@ -103,6 +105,7 @@ jobs:
         uses: gradle/actions/setup-gradle@v3
         with:
           gradle-version: '8.10'
+          cache-disabled: true
 
       - name: Run Checkstyle analysis
         run: gradle checkstyleMain
