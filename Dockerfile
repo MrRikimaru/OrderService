@@ -1,11 +1,9 @@
-# Многоступенчатая сборка для уменьшения размера образа
-# Этап сборки
+# Build stage
 FROM gradle:8.10-jdk21-alpine AS builder
 
-# Установка рабочей директории
 WORKDIR /app
 
-# Копирование Gradle файлов для кэширования зависимостей
+# Copy Gradle files
 COPY build.gradle settings.gradle* gradle.properties gradlew ./
 COPY gradle ./gradle
 
@@ -25,7 +23,7 @@ COPY src ./src
 RUN ./gradlew clean build -x test --no-daemon
 
 # Финальный этап для минимального образа
-FROM eclipse-temurin:21-jre-alpine
+FROM eclipse-temurin:21-jdk-alpine
 
 # Установка рабочей директории
 WORKDIR /app

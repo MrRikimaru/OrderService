@@ -2,7 +2,11 @@ package com.example.orderservice.mapper;
 
 import com.example.orderservice.dto.ItemDTO;
 import com.example.orderservice.entity.Item;
-import org.mapstruct.*;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.NullValuePropertyMappingStrategy;
+import org.mapstruct.BeanMapping;
+import org.mapstruct.MappingTarget;
 
 @Mapper(componentModel = "spring", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 public interface ItemMapper {
