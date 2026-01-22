@@ -1,23 +1,21 @@
 spring:
+  config:
+    activate:
+      on-profile: test
   datasource:
-    url: jdbc:h2:mem:testDb;MODE=PostgreSQL;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    url: ${LOCAL_DB_URL}
     driver-class-name: org.h2.Driver
-    username: sa
-    password:
+    username: ${LOCAL_DB_USERNAME}
+    password: ${LOCAL_DB_PASSWORD}
   jpa:
     hibernate:
       ddl-auto: create-drop
     show-sql: false
-    open-in-view: false
     properties:
       hibernate:
-        format_sql: false
-        jdbc:
-          batch_size: 20
+        jdbc.batch_size: 20
   liquibase:
     enabled: false
-  main:
-    banner-mode: 'off'
   autoconfigure:
     exclude:
       - org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration
@@ -25,7 +23,7 @@ spring:
 
 user:
   service:
-    url: http://localhost:9999
+    url: ${LOCAL_USER_SERVICE_URL}
 
 resilience4j:
   circuitbreaker:
@@ -37,11 +35,5 @@ logging:
   level:
     root: WARN
     com.example.orderservice: INFO
-    org.springframework: WARN
-    org.hibernate: WARN
     org.hibernate.SQL: WARN
-    org.hibernate.type.descriptor.sql: WARN
-    org.springframework.cloud: WARN
-    org.mockito: WARN
-    org.mapstruct: OFF
     org.springframework.cloud.openfeign: WARN

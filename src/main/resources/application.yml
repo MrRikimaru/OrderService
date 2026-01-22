@@ -1,8 +1,10 @@
 spring:
   application:
     name: order-service
+  profiles:
+    active: default
   datasource:
-    url: ${DB_URL:jdbc:postgresql://${DB_HOST}:${DB_PORT}/orderService}
+    url: ${DB_URL}
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
   jpa:
@@ -11,20 +13,26 @@ spring:
     show-sql: true
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.yaml
-  cloud:
-    openfeign:
-      circuitbreaker:
-        enabled: true
+    enabled: true
+  kafka:
+    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS}
+    consumer:
+      group-id: order-service-group
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "com.example.paymentservice.event,com.example.orderservice.event"
+        spring.json.type.mapping: paymentEvent:com.example.orderservice.event.PaymentEvent
+    listener:
+      ack-mode: MANUAL_IMMEDIATE
 
-# URL для UserService
 user:
   service:
-    url: ${USER_SERVICE_URL:http://localhost:8081}
+    url: ${USER_SERVICE_URL}
 
 server:
-  port: 8083
+  port: ${SERVER_PORT:8083}
 
-# Конфигурация Resilience4j Circuit Breaker
 resilience4j:
   circuitbreaker:
     configs:
@@ -40,8 +48,19 @@ resilience4j:
       userService:
         base-config: default
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always
+      probes:
+        enabled: true
+
 logging:
   level:
+    com.example.orderservice: INFO
     org.hibernate.SQL: DEBUG
-    com.example.orderservice.client: DEBUG
     org.springframework.cloud.openfeign: DEBUG
