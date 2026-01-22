@@ -83,6 +83,10 @@ dependencies {
 	testImplementation 'org.springframework.cloud:spring-cloud-starter-contract-stub-runner'
 
 	spotbugsPlugins 'com.h3xstream.findsecbugs:findsecbugs-plugin:1.14.0'
+
+	implementation 'org.springframework.kafka:spring-kafka'
+
+	implementation 'org.springframework.boot:spring-boot-starter-actuator'
 }
 
 tasks.named('test') {
