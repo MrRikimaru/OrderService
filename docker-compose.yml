@@ -2,52 +2,83 @@ services:
   order-service:
     build: .
     container_name: order-service
+    env_file: .env
     ports:
-      - "8080:8080"
+      - "8083:8083"
     environment:
       SPRING_PROFILES_ACTIVE: docker
-      DB_HOST: postgres
-      DB_PORT: 5432
-      DB_NAME: orderservice
-      DB_USERNAME: ${DB_USERNAME:-postgres}
-      DB_PASSWORD: ${DB_PASSWORD:-password}
+      DB_URL: ${DC_DB_URL}
+      DB_USERNAME: ${DC_DB_USERNAME}
+      DB_PASSWORD: ${DC_DB_PASSWORD}
+      USER_SERVICE_URL: ${DC_USER_SERVICE_URL}
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: ${DC_SPRING_KAFKA_BOOTSTRAP_SERVERS}
     depends_on:
-      postgres:
+      postgres-order:
         condition: service_healthy
+      kafka:
+        condition: service_started
+    networks:
+      - microservices-network
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:8080/actuator/health" ]
+      test: [ "CMD", "curl", "-f", "http://localhost:8083/health" ]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 60s
-    networks:
-      - order-service-network
+    restart: unless-stopped
 
-  postgres:
+  postgres-order:
     image: postgres:15-alpine
-    container_name: order-service-postgres
+    container_name: order-postgres
     environment:
-      POSTGRES_DB: orderService
-      POSTGRES_USER: ${DB_USERNAME:-postgres}
-      POSTGRES_PASSWORD: ${DB_PASSWORD:-password}
-    ports:
-      - "5432:5432"
+      POSTGRES_DB: ${DC_POSTGRES_DB}
+      POSTGRES_USER: ${DC_POSTGRES_USER}
+      POSTGRES_PASSWORD: ${DC_POSTGRES_PASSWORD}
     volumes:
-      - postgres_data:/var/lib/postgresql/data
-      - ./postgres-init:/docker-entrypoint-initdb.d
+      - postgres_order_data:/var/lib/postgresql/data
+    networks:
+      - microservices-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:-postgres}"]
+      test: ["CMD-SHELL", "pg_isready -U ${DC_POSTGRES_USER}"]
       interval: 10s
       timeout: 5s
       retries: 5
       start_period: 30s
+    restart: unless-stopped
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.5.0
+    container_name: order-zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
     networks:
-      - order-service-network
+      - microservices-network
+    restart: unless-stopped
+
+  kafka:
+    image: confluentinc/cp-kafka:7.5.0
+    container_name: order-kafka
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,PLAINTEXT_HOST://0.0.0.0:29092
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    ports:
+      - "29092:29092"
+    networks:
+      - microservices-network
+    restart: unless-stopped
 
 volumes:
-  postgres_data:
+  postgres_order_data:
     driver: local
 
 networks:
-  order-service-network:
-    driver: bridge
+  microservices-network:
+    external: true

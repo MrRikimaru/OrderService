@@ -23,7 +23,6 @@ public interface ItemRepository extends JpaRepository<Item, Long>, JpaSpecificat
     @Query("SELECT i FROM Item i WHERE i.price >= :minPrice")
     List<Item> findItemsAbovePrice(@Param("minPrice") BigDecimal minPrice);
 
-    // Проверка, используется ли товар в заказах
     @Query("SELECT COUNT(oi) > 0 FROM OrderItem oi WHERE oi.item.id = :itemId")
     boolean existsInOrderItems(@Param("itemId") Long itemId);
 }

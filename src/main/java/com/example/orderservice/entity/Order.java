@@ -4,7 +4,6 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Column;
 import jakarta.persistence.Table;
-import jakarta.persistence.Index;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.GeneratedValue;
@@ -24,10 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "orders", indexes = {
-        @Index(name = "idx_order_user_id", columnList = "user_id"),
-        @Index(name = "idx_order_created_at", columnList = "createdAt")
-})
+@Table(name = "orders")
 @EntityListeners(AuditingEntityListener.class)
 @Getter
 @Setter

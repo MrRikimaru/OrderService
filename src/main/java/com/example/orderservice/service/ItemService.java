@@ -133,14 +133,12 @@ public class ItemService {
 
         return itemRepository.findAll().stream()
                 .filter(item -> {
-                    // Фильтр по имени
                     if (name != null && !name.trim().isEmpty()) {
                         if (!item.getName().toLowerCase().contains(name.toLowerCase())) {
                             return false;
                         }
                     }
 
-                    // Фильтр по цене
                     if (minPrice != null && item.getPrice() != null) {
                         if (item.getPrice().compareTo(minPrice) < 0) {
                             return false;

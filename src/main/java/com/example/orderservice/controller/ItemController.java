@@ -18,8 +18,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.math.BigDecimal;
+import java.net.URI;
 import java.util.List;
 
 @RestController
@@ -83,7 +85,14 @@ public class ItemController {
     @PostMapping
     public ResponseEntity<ItemDTO> createItem(@Valid @RequestBody ItemDTO itemDTO) {
         ItemDTO createdItem = itemService.createItem(itemDTO);
-        return ResponseEntity.ok(createdItem);
+
+        URI location = ServletUriComponentsBuilder
+                .fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(createdItem.getId())
+                .toUri();
+
+        return ResponseEntity.created(location).body(createdItem);
     }
 
     @PutMapping("/{id}")

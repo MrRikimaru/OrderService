@@ -4,7 +4,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Table;
-import jakarta.persistence.Index;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -21,10 +20,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "order_items", indexes = {
-        @Index(name = "idx_order_item_order_id", columnList = "order_id"),
-        @Index(name = "idx_order_item_item_id", columnList = "item_id")
-})
+@Table(name = "order_items")
 @EntityListeners(AuditingEntityListener.class)
 @Getter
 @Setter
