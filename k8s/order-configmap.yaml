@@ -1,0 +1,46 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: order-service-config
+  namespace: microservice-network
+data:
+  SERVER_PORT: "8083"
+  SERVER_SERVLET_CONTEXT_PATH: "/"
+
+  SPRING_PROFILES_ACTIVE: "docker"
+  SPRING_DATASOURCE_URL: "jdbc:postgresql://order-postgres-db:5432/orderdb"
+  SPRING_DATASOURCE_USERNAME: "postgres"
+  SPRING_DATASOURCE_DRIVER_CLASS_NAME: "org.postgresql.Driver"
+
+  SPRING_KAFKA_BOOTSTRAP_SERVERS: "kafka:9092"
+  SPRING_KAFKA_CONSUMER_GROUP_ID: "order-service-group"
+  SPRING_KAFKA_CONSUMER_KEY_DESERIALIZER: "org.apache.kafka.common.serialization.StringDeserializer"
+  SPRING_KAFKA_CONSUMER_VALUE_DESERIALIZER: "org.springframework.kafka.support.serializer.JsonDeserializer"
+  SPRING_KAFKA_CONSUMER_PROPERTIES_SPRING_JSON_TRUSTED_PACKAGES: "*"
+  SPRING_KAFKA_CONSUMER_PROPERTIES_SPRING_JSON_TYPE_MAPPING: "paymentEvent:com.example.orderservice.event.PaymentEvent"
+  SPRING_KAFKA_CONSUMER_AUTO_OFFSET_RESET: "earliest"
+
+  SPRING_KAFKA_PRODUCER_KEY_SERIALIZER: "org.apache.kafka.common.serialization.StringSerializer"
+  SPRING_KAFKA_PRODUCER_VALUE_SERIALIZER: "org.springframework.kafka.support.serializer.JsonSerializer"
+  SPRING_KAFKA_PRODUCER_PROPERTIES_SPRING_JSON_TYPE_MAPPING: "orderEvent:com.example.orderservice.event.OrderEvent"
+  SPRING_KAFKA_PRODUCER_RETRIES: "3"
+  SPRING_KAFKA_PRODUCER_ACKS: "all"
+
+  SPRING_JPA_HIBERNATE_DDL_AUTO: "validate"
+  SPRING_JPA_SHOW_SQL: "true"
+
+  SPRING_LIQUIBASE_ENABLED: "true"
+  SPRING_LIQUIBASE_CHANGE_LOG: "classpath:db/changelog/db.changelog-master.yaml"
+
+  USER_SERVICE_URL: "http://user-service.microservice-network.svc.cluster.local:8082"
+  PAYMENT_SERVICE_URL: "http://payment-service:8084"
+
+  MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE: "health,info,metrics"
+  MANAGEMENT_ENDPOINT_HEALTH_SHOW_DETAILS: "always"
+  MANAGEMENT_ENDPOINT_HEALTH_PROBES_ENABLED: "true"
+  MANAGEMENT_HEALTH_LIVENESSSTATE_ENABLED: "true"
+  MANAGEMENT_HEALTH_READINESSSTATE_ENABLED: "true"
+
+  LOGGING_LEVEL_ORG_APACHE_KAFKA: "INFO"
+  LOGGING_LEVEL_ORG_SPRINGFRAMEWORK_KAFKA: "INFO"
+  LOGGING_LEVEL_COM_EXAMPLE_ORDERSERVICE_KAFKA: "DEBUG"
