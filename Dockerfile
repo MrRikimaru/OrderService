@@ -40,7 +40,7 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=30s --retries=3 \
   CMD wget --quiet --tries=1 --spider http://localhost:8080/actuator/health || exit 1
 
 # Открытие порта
-EXPOSE 8080
+EXPOSE 8083
 
 # Запуск приложения
 ENTRYPOINT ["java", "-jar", "/app/app.jar"]
